@@ -34,3 +34,13 @@ resource "aws_instance" "app_server" {
     ManagedBy   = "Terraform"
   }
 }
+
+## AWS s3 bucket
+resource "aws_s3_bucket" "demo" {
+  bucket = "githubrunnertest-demo-bucket-123456"
+
+  tags = {
+    Environment = "Dev"
+    ManagedBy   = "Terraform"
+  }
+}
