@@ -1,4 +1,4 @@
-name: GitHubRunner
+name: Terraform
 
 on:
   workflow_dispatch:
@@ -11,35 +11,48 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
-
+  plan:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: terraform
-
     steps:
-
       - uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-south-1
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
+      - run: terraform plan -out=tfplan
 
-      - name: Terraform Validate
-        run: terraform validate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
 
-      - name: Terraform Plan
-        run: terraform plan
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+    environment:
+      name: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+
+      - run: terraform init
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - run: terraform apply tfplan
