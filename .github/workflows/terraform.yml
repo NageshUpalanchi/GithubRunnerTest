@@ -24,8 +24,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-south-1
 
-      - run: terraform init
-      - run: terraform plan -out=tfplan
+      - name: Terraform Init
+        run: terraform init -reconfigure
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
 
       - uses: actions/upload-artifact@v4
         with:
@@ -52,7 +54,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-south-1
 
-      - run: terraform init
+      - name: Terraform Init
+        run: terraform init -reconfigure
 
       - uses: actions/download-artifact@v4
         with:
