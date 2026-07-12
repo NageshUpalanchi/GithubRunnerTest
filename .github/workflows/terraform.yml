@@ -10,6 +10,9 @@ permissions:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +35,9 @@ jobs:
   apply:
     needs: plan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
     environment:
       name: dev
